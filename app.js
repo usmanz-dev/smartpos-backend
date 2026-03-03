@@ -22,6 +22,14 @@ app.use('/api/reports', require('./routes/report.routes'));
 // Health
 app.get('/api/health', (_, res) => res.json({ status: 'SmartPOS Pro API ✅', time: new Date() }));
 
+// optional root landing page for deploys (avoid 404 noise)
+app.get('/', (req, res) => {
+  return res.send('SmartPOS Pro backend - run `/api/health` for status');
+});
+
+// serve a blank favicon to prevent 404s
+app.get('/favicon.ico', (req, res) => res.sendStatus(204));
+
 // 404
 app.use('*', (req, res) => res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` }));
 
