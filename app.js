@@ -1,3 +1,6 @@
+require('./config/dotenv');
+const connectDB = require('./config/db');
+
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -5,8 +8,17 @@ const errorHandler = require('./middleware/error.middleware');
 
 const app = express();
 
+// ✅ Yeh add karo - DB connect karega
+connectDB();
+
 // Middleware
-app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://your-frontend-url.vercel.app'  // 👈 apna frontend URL yahan daalo
+  ],
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
@@ -22,12 +34,10 @@ app.use('/api/reports', require('./routes/report.routes'));
 // Health
 app.get('/api/health', (_, res) => res.json({ status: 'SmartPOS Pro API ✅', time: new Date() }));
 
-// optional root landing page for deploys (avoid 404 noise)
 app.get('/', (req, res) => {
   return res.send('SmartPOS Pro backend - run `/api/health` for status');
 });
 
-// serve a blank favicon to prevent 404s
 app.get('/favicon.ico', (req, res) => res.sendStatus(204));
 
 // 404
