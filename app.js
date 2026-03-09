@@ -1,27 +1,29 @@
-require('./config/dotenv');
-const connectDB = require('./config/db');
-
+const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const errorHandler = require('./middleware/error.middleware');
 
-const app = express();
+// DB Connect
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch(err => {
+    console.error('❌ MongoDB Error:', err.message);
+  });
 
-// ✅ Yeh add karo - DB connect karega
-connectDB();
+const app = express();
 
 // Middleware
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://your-frontend-url.vercel.app'  // 👈 apna frontend URL yahan daalo
+    'https://your-frontend.vercel.app'
   ],
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
+if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', require('./routes/auth.routes'));
@@ -33,11 +35,7 @@ app.use('/api/reports', require('./routes/report.routes'));
 
 // Health
 app.get('/api/health', (_, res) => res.json({ status: 'SmartPOS Pro API ✅', time: new Date() }));
-
-app.get('/', (req, res) => {
-  return res.send('SmartPOS Pro backend - run `/api/health` for status');
-});
-
+app.get('/', (req, res) => res.send('SmartPOS Pro backend'));
 app.get('/favicon.ico', (req, res) => res.sendStatus(204));
 
 // 404
