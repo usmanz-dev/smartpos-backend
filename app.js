@@ -16,11 +16,18 @@ const app = express();
 // Middleware
 app.use(cors({
   origin: [
-  'http://localhost:3000',
-  'https://smart-pos-3u5u.vercel.app/'
-],
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://smart-pos-gamma.vercel.app',  // ✅ Sahi URL (trailing slash hata di)
+    'https://smart-pos-3u5u.vercel.app'    // ✅ Trailing slash hata di
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  // ✅ Yeh add kiya
+  allowedHeaders: ['Content-Type', 'Authorization'],      // ✅ Yeh add kiya
   credentials: true
 }));
+
+app.options('*', cors()); // ✅ Preflight requests ke liye zaroori
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'production') app.use(morgan('dev'));
